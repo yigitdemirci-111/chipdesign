@@ -1,3 +1,5 @@
 *.vcd
-*test
-*.zip
+*.vvp
+soc_test
+obj_dir/
+*.o
