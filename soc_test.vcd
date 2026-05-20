@@ -1,0 +1,293 @@
+$date
+	Wed May 20 22:04:41 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module soc_top $end
+$var wire 1 ! clk_i $end
+$var wire 32 " cpu_araddr [31:0] $end
+$var wire 8 # gpio_io [7:0] $end
+$var wire 1 $ i2c_sda_io $end
+$var wire 32 % m_axi_awaddr [31:0] $end
+$var wire 1 & m_axi_awready $end
+$var wire 32 ' m_axi_wdata [31:0] $end
+$var wire 1 ( rst_ni $end
+$var wire 32 ) s0_axi_awaddr [31:0] $end
+$var wire 1 * s0_axi_awready $end
+$var wire 1 + s0_axi_awvalid $end
+$var wire 1 , uart_rx_i $end
+$var wire 1 - ram_en $end
+$var wire 1 . m_axi_wvalid $end
+$var wire 1 / m_axi_awvalid $end
+$var wire 1 0 cpu_rready $end
+$var wire 1 1 cpu_arvalid $end
+$var reg 1 2 cpu_arready $end
+$var reg 32 3 cpu_rdata [31:0] $end
+$var reg 1 4 cpu_rvalid $end
+$var reg 1 5 i2c_scl_o $end
+$var reg 1 6 m_axi_wready $end
+$var reg 1 7 uart_tx_o $end
+$scope module u_cpu $end
+$var wire 1 ! clk $end
+$var wire 32 8 m_axi_araddr [31:0] $end
+$var wire 1 2 m_axi_arready $end
+$var wire 32 9 m_axi_awaddr [31:0] $end
+$var wire 1 & m_axi_awready $end
+$var wire 32 : m_axi_rdata [31:0] $end
+$var wire 1 4 m_axi_rvalid $end
+$var wire 32 ; m_axi_wdata [31:0] $end
+$var wire 1 6 m_axi_wready $end
+$var wire 1 ( rst_n $end
+$var reg 1 1 m_axi_arvalid $end
+$var reg 1 / m_axi_awvalid $end
+$var reg 1 0 m_axi_rready $end
+$var reg 1 . m_axi_wvalid $end
+$var reg 2 < state [1:0] $end
+$upscope $end
+$scope module u_ram_0 $end
+$var wire 1 ! clk $end
+$var wire 1 = rst $end
+$var wire 16 > s_axi_araddr [15:0] $end
+$var wire 2 ? s_axi_arburst [1:0] $end
+$var wire 4 @ s_axi_arcache [3:0] $end
+$var wire 8 A s_axi_arid [7:0] $end
+$var wire 8 B s_axi_arlen [7:0] $end
+$var wire 1 C s_axi_arlock $end
+$var wire 3 D s_axi_arprot [2:0] $end
+$var wire 1 E s_axi_arready $end
+$var wire 3 F s_axi_arsize [2:0] $end
+$var wire 1 G s_axi_arvalid $end
+$var wire 16 H s_axi_awaddr [15:0] $end
+$var wire 2 I s_axi_awburst [1:0] $end
+$var wire 4 J s_axi_awcache [3:0] $end
+$var wire 8 K s_axi_awid [7:0] $end
+$var wire 8 L s_axi_awlen [7:0] $end
+$var wire 1 M s_axi_awlock $end
+$var wire 3 N s_axi_awprot [2:0] $end
+$var wire 1 O s_axi_awready $end
+$var wire 3 P s_axi_awsize [2:0] $end
+$var wire 1 Q s_axi_awvalid $end
+$var wire 8 R s_axi_bid [7:0] $end
+$var wire 1 S s_axi_bready $end
+$var wire 2 T s_axi_bresp [1:0] $end
+$var wire 1 U s_axi_bvalid $end
+$var wire 32 V s_axi_rdata [31:0] $end
+$var wire 8 W s_axi_rid [7:0] $end
+$var wire 1 X s_axi_rlast $end
+$var wire 1 Y s_axi_rready $end
+$var wire 2 Z s_axi_rresp [1:0] $end
+$var wire 1 [ s_axi_rvalid $end
+$var wire 32 \ s_axi_wdata [31:0] $end
+$var wire 1 ] s_axi_wlast $end
+$var wire 1 ^ s_axi_wready $end
+$var wire 4 _ s_axi_wstrb [3:0] $end
+$var wire 1 ` s_axi_wvalid $end
+$var wire 14 a write_addr_valid [13:0] $end
+$var wire 14 b s_axi_awaddr_valid [13:0] $end
+$var wire 14 c s_axi_araddr_valid [13:0] $end
+$var wire 14 d read_addr_valid [13:0] $end
+$var parameter 32 e ADDR_WIDTH $end
+$var parameter 32 f DATA_WIDTH $end
+$var parameter 32 g ID_WIDTH $end
+$var parameter 32 h PIPELINE_OUTPUT $end
+$var parameter 1 i READ_STATE_BURST $end
+$var parameter 1 j READ_STATE_IDLE $end
+$var parameter 32 k STRB_WIDTH $end
+$var parameter 33 l VALID_ADDR_WIDTH $end
+$var parameter 32 m WORD_SIZE $end
+$var parameter 32 n WORD_WIDTH $end
+$var parameter 2 o WRITE_STATE_BURST $end
+$var parameter 2 p WRITE_STATE_IDLE $end
+$var parameter 2 q WRITE_STATE_RESP $end
+$var reg 1 r mem_rd_en $end
+$var reg 1 s mem_wr_en $end
+$var reg 16 t read_addr_next [15:0] $end
+$var reg 16 u read_addr_reg [15:0] $end
+$var reg 2 v read_burst_next [1:0] $end
+$var reg 2 w read_burst_reg [1:0] $end
+$var reg 8 x read_count_next [7:0] $end
+$var reg 8 y read_count_reg [7:0] $end
+$var reg 8 z read_id_next [7:0] $end
+$var reg 8 { read_id_reg [7:0] $end
+$var reg 3 | read_size_next [2:0] $end
+$var reg 3 } read_size_reg [2:0] $end
+$var reg 1 ~ read_state_next $end
+$var reg 1 !" read_state_reg $end
+$var reg 1 "" s_axi_arready_next $end
+$var reg 1 #" s_axi_arready_reg $end
+$var reg 1 $" s_axi_awready_next $end
+$var reg 1 %" s_axi_awready_reg $end
+$var reg 8 &" s_axi_bid_next [7:0] $end
+$var reg 8 '" s_axi_bid_reg [7:0] $end
+$var reg 1 (" s_axi_bvalid_next $end
+$var reg 1 )" s_axi_bvalid_reg $end
+$var reg 32 *" s_axi_rdata_pipe_reg [31:0] $end
+$var reg 32 +" s_axi_rdata_reg [31:0] $end
+$var reg 8 ," s_axi_rid_next [7:0] $end
+$var reg 8 -" s_axi_rid_pipe_reg [7:0] $end
+$var reg 8 ." s_axi_rid_reg [7:0] $end
+$var reg 1 /" s_axi_rlast_next $end
+$var reg 1 0" s_axi_rlast_pipe_reg $end
+$var reg 1 1" s_axi_rlast_reg $end
+$var reg 1 2" s_axi_rvalid_next $end
+$var reg 1 3" s_axi_rvalid_pipe_reg $end
+$var reg 1 4" s_axi_rvalid_reg $end
+$var reg 1 5" s_axi_wready_next $end
+$var reg 1 6" s_axi_wready_reg $end
+$var reg 16 7" write_addr_next [15:0] $end
+$var reg 16 8" write_addr_reg [15:0] $end
+$var reg 2 9" write_burst_next [1:0] $end
+$var reg 2 :" write_burst_reg [1:0] $end
+$var reg 8 ;" write_count_next [7:0] $end
+$var reg 8 <" write_count_reg [7:0] $end
+$var reg 8 =" write_id_next [7:0] $end
+$var reg 8 >" write_id_reg [7:0] $end
+$var reg 3 ?" write_size_next [2:0] $end
+$var reg 3 @" write_size_reg [2:0] $end
+$var reg 2 A" write_state_next [1:0] $end
+$var reg 2 B" write_state_reg [1:0] $end
+$var integer 32 C" i [31:0] $end
+$var integer 32 D" j [31:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b10 q
+b0 p
+b1 o
+b100 n
+b1000 m
+b1110 l
+b100 k
+0j
+1i
+b0 h
+b1000 g
+b100000 f
+b10000 e
+$end
+#0
+$dumpvars
+b100000000000000 D"
+b100000000000000 C"
+b0 B"
+b0 A"
+b0 @"
+b0 ?"
+b0 >"
+b0 ="
+b0 <"
+b0 ;"
+b0 :"
+b0 9"
+b0 8"
+b0 7"
+06"
+05"
+04"
+03"
+02"
+01"
+00"
+0/"
+b0 ."
+b0 -"
+b0 ,"
+b0 +"
+b0 *"
+0)"
+0("
+b0 '"
+b0 &"
+0%"
+1$"
+0#"
+1""
+0!"
+0~
+b0 }
+b0 |
+b0 {
+b0 z
+b0 y
+b0 x
+b0 w
+b0 v
+b0 u
+b0 t
+0s
+0r
+b0 d
+bz c
+b10000000000 b
+b0 a
+x`
+bz _
+0^
+z]
+b11011110101011011011111011101111 \
+0[
+b0 Z
+zY
+0X
+b0 W
+b0 V
+0U
+b0 T
+zS
+b0 R
+xQ
+bz P
+0O
+bz N
+zM
+bz L
+bz K
+bz J
+bz I
+b1000000000000 H
+zG
+bz F
+0E
+bz D
+zC
+bz B
+bz A
+bz @
+bz ?
+bz >
+x=
+bx <
+b11011110101011011011111011101111 ;
+bx :
+b1000000000000 9
+b1000000000000 8
+x7
+x6
+x5
+x4
+bx 3
+x2
+x1
+x0
+x/
+x.
+1-
+z,
+x+
+1*
+b1000000000000 )
+z(
+b11011110101011011011111011101111 '
+1&
+b1000000000000 %
+z$
+bz #
+b1000000000000 "
+z!
+$end
