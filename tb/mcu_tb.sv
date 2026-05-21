@@ -19,22 +19,26 @@ module mcu_tb;
         forever #5 clk = ~clk;
     end
 
+    // Yükleme ve Reset Bloğu
     initial begin
+        // RAM içeriğini dışarıdan yükle
+        $readmemh("test.hex", u_dut.u_ram_main.mem);
+        
         $dumpfile("soc_test.vcd");
         $dumpvars(0, mcu_tb);
 
-        rst_n = 0; 
-        #20;
+        rst_n = 0;
+        #100;
         @(negedge clk);
         rst_n = 1;
 
-        // FSM'in tüm aşamaları (RAM Yazma -> Okuma -> GPIO Yazma) bitirmesi için süre
+        // FSM'in çalışması için bekle
         #250; 
 
         $display("==================================================");
         $display("TEKNOFEST SoC ENTEGRASYON TEST RAPORU:");
         $display("--------------------------------------------------");
-$display("1) RAM Durumu  (data_axi_rdata) : %h", u_dut.data_axi_rdata);
+        $display("1) RAM Durumu  (data_axi_rdata) : %h", u_dut.data_axi_rdata);
         $display("2) GPIO Çıkışı (gpio_io)     : %b (Hex: %h)", gpio_io, gpio_io);
         $display("==================================================");
 
