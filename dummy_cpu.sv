@@ -1,101 +1,92 @@
+`timescale 1ns / 1ps
+
 module dummy_cpu (
     input  logic        clk,
     input  logic        rst_n,
-
-    // AXI4-Lite Yazma (Write) Kanalları
     output logic [31:0] m_axi_awaddr,
     output logic        m_axi_awvalid,
     input  logic        m_axi_awready,
-
     output logic [31:0] m_axi_wdata,
     output logic        m_axi_wvalid,
     input  logic        m_axi_wready,
-
-    // AXI4-Lite Okuma (Read) Kanalları
     output logic [31:0] m_axi_araddr,
     output logic        m_axi_arvalid,
     input  logic        m_axi_arready,
-
     input  logic [31:0] m_axi_rdata,
     input  logic        m_axi_rvalid,
     output logic        m_axi_rready
 );
 
-    // Durum Makinesi (State Machine) Tanımları
     typedef enum logic [2:0] {
-        IDLE   = 3'b000,
-        WRITE  = 3'b001,
-        WAIT_W = 3'b010,
-        READ   = 3'b011,
-        WAIT_R = 3'b100,
-        DONE   = 3'b101
+        IDLE        = 3'b000,
+        WRITE_RAM   = 3'b001,
+        READ_RAM    = 3'b010,
+        WAIT_RAM_R  = 3'b011,
+        WRITE_GPIO  = 3'b100,
+        DONE        = 3'b101
     } state_t;
 
-    state_t state, next_state;
+    state_t current_state, next_state;
+    logic aw_done, w_done;
 
-    // Ardışıl Mantık (Saat Vuruşlarında Durum Güncelleme)
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            state <= IDLE;
+            current_state <= IDLE;
+            aw_done       <= 1'b0;
+            w_done        <= 1'b0;
         end else begin
-            state <= next_state;
+            current_state <= next_state;
+            if ((current_state == WRITE_RAM || current_state == WRITE_GPIO) && m_axi_awvalid && m_axi_awready) 
+                aw_done <= 1'b1;
+            if ((current_state == WRITE_RAM || current_state == WRITE_GPIO) && m_axi_wvalid && m_axi_wready)   
+                w_done  <= 1'b1;
+            if (next_state != WRITE_RAM && next_state != WRITE_GPIO) begin
+                aw_done <= 1'b0;
+                w_done  <= 1'b0;
+            end
         end
     end
 
-    // Kombinasyonel Mantık (Sonraki Durum ve Sinyal Çıkışları)
     always_comb begin
-        // Varsayılan Değerler (Latch oluşmasını engeller)
-        next_state    = state;
-        m_axi_awvalid = 0;
-        m_axi_wvalid  = 0;
-        m_axi_arvalid = 0;
-        m_axi_rready  = 0;
+        next_state    = current_state;
+        m_axi_awaddr  = 32'h0;
+        m_axi_awvalid = 1'b0;
+        m_axi_wdata   = 32'h0;
+        m_axi_wvalid  = 1'b0;
+        m_axi_araddr  = 32'h0;
+        m_axi_arvalid = 1'b0;
+        m_axi_rready  = 1'b0;
 
-        // Sabit Adres ve Veri (0x1000 adresine DEADBEEF yazıp okuyacağız)
-        m_axi_awaddr  = 32'h0000_1000;
-        m_axi_wdata   = 32'hDEAD_BEEF;
-        m_axi_araddr  = 32'h0000_1000;
-
-        case (state)
-            IDLE: begin
-                next_state = WRITE; // Resetten çıkınca yazmaya başla
+        case (current_state)
+            IDLE: next_state = WRITE_RAM;
+            WRITE_RAM: begin
+                m_axi_awaddr  = 32'h0000_0100;
+                m_axi_wdata   = 32'hDEADBEEF;
+                m_axi_awvalid = !aw_done;
+                m_axi_wvalid  = !w_done;
+                if ((aw_done || m_axi_awready) && (w_done || m_axi_wready))
+                    next_state = READ_RAM;
             end
-
-            WRITE: begin
-                m_axi_awvalid = 1;
-                m_axi_wvalid  = 1;
-                // RAM hem adresi hem veriyi aldığını onayladığında geç
-                if (m_axi_awready && m_axi_wready) begin
-                    next_state = WAIT_W;
-                end
+            READ_RAM: begin
+                m_axi_araddr  = 32'h0000_0100;
+                m_axi_arvalid = 1'b1;
+                if (m_axi_arready)
+                    next_state = WAIT_RAM_R;
             end
-            
-            WAIT_W: begin
-                // Yazma sonrası bir cycle nefes al ve okumaya geç
-                next_state = READ;
+            WAIT_RAM_R: begin
+                m_axi_rready = 1'b1;
+                if (m_axi_rvalid)
+                    next_state = WRITE_GPIO;
             end
-
-            READ: begin
-                m_axi_arvalid = 1; // Okuma adresi geçerli
-                if (m_axi_arready) begin
-                    next_state = WAIT_R; // RAM adresi aldı, veriyi bekle
-                end
+            WRITE_GPIO: begin
+                m_axi_awaddr  = 32'h4000_0300;
+                m_axi_wdata   = 32'h0000_0055;
+                m_axi_awvalid = !aw_done;
+                m_axi_wvalid  = !w_done;
+                if ((aw_done || m_axi_awready) && (w_done || m_axi_wready))
+                    next_state = DONE;
             end
-            
-            WAIT_R: begin
-                m_axi_rready = 1; // İşlemci veriyi almaya hazır
-                if (m_axi_rvalid) begin
-                    next_state = DONE; // Veri geldi, işlemi bitir
-                end
-            end
-
-            DONE: begin
-                // Tüm işlemler başarıyla bitti, burada uyu
-                next_state = DONE;
-            end
-
-            default: next_state = IDLE;
+            DONE: next_state = DONE;
         endcase
     end
-
 endmodule
