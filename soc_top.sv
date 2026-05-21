@@ -58,39 +58,58 @@ module soc_top (
     assign data_axi_rvalid  = flat_s_rvalid[1];
     assign flat_s_rready  = {data_axi_rready,  inst_axi_rready};
 
+// =========================================================================
+    // GERÇEK DURUM MAKİNELİ OBI - AXI4-LITE KÖPRÜLERİ ENTEGRASYONU
     // =========================================================================
-    // OBI (OPEN BUS INTERFACE) - AXI4-LITE KÖPRÜLERİ (PROTOKOL EVLİLİĞİ)
-    // =========================================================================
-    // CV32E40P'den çıkacak OBI sinyallerini matrise adapte ediyoruz.
-    logic        instr_req;    logic        instr_gnt;    logic [31:0] instr_addr;
-    logic        instr_rvalid; logic [31:0] instr_rdata;
+    // Çekirdek ile Matris arasındaki ara bağlantı telleri
+    logic        instr_req,    instr_gnt,    instr_rvalid;
+    logic [31:0] instr_addr,   instr_rdata;
 
-    logic        data_req;     logic        data_gnt;     logic [31:0] data_addr;
-    logic        data_we;      logic [31:0] data_wdata;   logic [3:0]  data_be;
-    logic        data_rvalid;  logic [31:0] data_rdata;
+    logic        data_req,     data_gnt,     data_rvalid, data_we;
+    logic [3:0]  data_be;
+    logic [31:0] data_addr,    data_wdata,   data_rdata;
 
-    // --- Instruction Port Köprüsü ---
-    assign inst_axi_araddr  = instr_addr;
-    assign inst_axi_arvalid = instr_req;
-    assign instr_gnt        = inst_axi_arready;
-    assign instr_rvalid     = inst_axi_rvalid;
-    assign instr_rdata      = inst_axi_rdata;
-    // Instruction hattı salt okunurdur (Yazma sinyalleri pasif)
-    assign inst_axi_awaddr  = 32'h0; assign inst_axi_awvalid = 1'b0;
-    assign inst_axi_wdata   = 32'h0;  assign inst_axi_wvalid  = 1'b0;
+    // --- Instruction Fetch Kanalı Köprüsü (Master 0) ---
+    obi_to_axil_bridge u_bridge_instr (
+        .clk          (clk_i),
+        .rst_n        (rst_ni),
+        // OBI (İşlemciye giden hatlar)
+        .obi_req_i    (instr_req),
+        .obi_gnt_o    (instr_gnt),
+        .obi_addr_i   (instr_addr),
+        .obi_we_i     (1'b0), // Fetch her zaman okumadır
+        .obi_be_i     (4'hF),
+        .obi_wdata_i  (32'h0),
+        .obi_rvalid_o (instr_rvalid),
+        .obi_rdata_o  (instr_rdata),
+        // AXI4-Lite (Matrise giden hatlar)
+        .axil_awaddr  (inst_axi_awaddr),  .axil_awvalid (inst_axi_awvalid), .axil_awready (inst_axi_awready),
+        .axil_wdata   (inst_axi_wdata),   .axil_wstrb   (),                 .axil_wvalid  (inst_axi_wvalid),  .axil_wready (inst_axi_wready),
+        .axil_bresp   (2'b0),             .axil_bvalid  (1'b0),             .axil_bready  (),
+        .axil_araddr  (inst_axi_araddr),  .axil_arvalid (inst_axi_arvalid), .axil_arready (inst_axi_arready),
+        .axil_rdata   (inst_axi_rdata),   .axil_rresp   (2'b0),             .axil_rvalid  (inst_axi_rvalid),  .axil_rready (inst_axi_rready)
+    );
 
-    // --- Data Port Köprüsü ---
-    assign data_axi_awaddr  = data_addr;
-    assign data_axi_araddr  = data_addr;
-    assign data_axi_wdata   = data_wdata;
-    
-    assign data_axi_awvalid = data_req && data_we;
-    assign data_axi_wvalid  = data_req && data_we;
-    assign data_axi_arvalid = data_req && !data_we;
-    
-    assign data_gnt         = data_we ? (data_axi_awready && data_axi_wready) : data_axi_arready;
-    assign data_rvalid      = data_axi_rvalid || (data_axi_wready && data_axi_awready); // Okuma veya Yazma tamamlandı cevabı
-assign data_rdata       = data_axi_rdata;
+    // --- Data Access Kanalı Köprüsü (Master 1) ---
+    obi_to_axil_bridge u_bridge_data (
+        .clk          (clk_i),
+        .rst_n        (rst_ni),
+        // OBI (İşlemciye giden hatlar)
+        .obi_req_i    (data_req),
+        .obi_gnt_o    (data_gnt),
+        .obi_addr_i   (data_addr),
+        .obi_we_i     (data_we),
+        .obi_be_i     (data_be),
+        .obi_wdata_i  (data_wdata),
+        .obi_rvalid_o (data_rvalid),
+        .obi_rdata_o  (data_rdata),
+        // AXI4-Lite (Matrise giden hatlar)
+        .axil_awaddr  (data_axi_awaddr),  .axil_awvalid (data_axi_awvalid), .axil_awready (data_axi_awready),
+        .axil_wdata   (data_axi_wdata),   .axil_wstrb   (),                 .axil_wvalid  (data_axi_wvalid),  .axil_wready (data_axi_wready),
+        .axil_bresp   (2'b0),             .axil_bvalid  (1'b1),             .axil_bready  (), // Hazır matris için bvalid simüle ediliyor
+        .axil_araddr  (data_axi_araddr),  .axil_arvalid (data_axi_arvalid), .axil_arready (data_axi_arready),
+        .axil_rdata   (data_axi_rdata),   .axil_rresp   (2'b0),             .axil_rvalid  (data_axi_rvalid),  .axil_rready (data_axi_rready)
+    );
     // =========================================================================
     // GERÇEK RISC-V CORE ENTEGRASYONU (CV32E40P)
 
