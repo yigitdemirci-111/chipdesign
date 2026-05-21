@@ -34,7 +34,7 @@ module mcu_tb;
         $display("==================================================");
         $display("TEKNOFEST SoC ENTEGRASYON TEST RAPORU:");
         $display("--------------------------------------------------");
-        $display("1) RAM Durumu  (m_axi_rdata) : %h", u_dut.u_cpu.m_axi_rdata);
+$display("1) RAM Durumu  (data_axi_rdata) : %h", u_dut.data_axi_rdata);
         $display("2) GPIO Çıkışı (gpio_io)     : %b (Hex: %h)", gpio_io, gpio_io);
         $display("==================================================");
 
