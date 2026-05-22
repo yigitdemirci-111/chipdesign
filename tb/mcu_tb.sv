@@ -20,10 +20,11 @@ module mcu_tb;
     end
 
     // Yükleme ve Reset Bloğu
+// Yükleme ve Reset Bloğu
     initial begin
         // RAM içeriğini dışarıdan yükle
         $readmemh("test.hex", u_dut.u_ram_main.mem);
-        
+
         $dumpfile("soc_test.vcd");
         $dumpvars(0, mcu_tb);
 
@@ -32,8 +33,11 @@ module mcu_tb;
         @(negedge clk);
         rst_n = 1;
 
-        // FSM'in çalışması için bekle
-        #250; 
+        // BİRİNCİ DEĞİŞİKLİK: GPIO'daki her değişimi anlık olarak terminale yazdırır
+        $monitor("Zaman: %0t ps | GPIO Çıkışı: %b (Hex: %h)", $time, gpio_io, gpio_io);
+
+        // İKİNCİ DEĞİŞİKLİK: Döngünün çalışması için süreyi 250'den 1000'e çıkarıyoruz
+        #1000; 
 
         $display("==================================================");
         $display("TEKNOFEST SoC ENTEGRASYON TEST RAPORU:");
@@ -44,5 +48,4 @@ module mcu_tb;
 
         $finish;
     end
-
 endmodule
