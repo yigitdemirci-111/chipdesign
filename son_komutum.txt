@@ -1,0 +1,1 @@
+  404  history | grep "iverilog" | tail -n 1 > son_komutum.txt

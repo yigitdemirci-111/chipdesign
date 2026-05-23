@@ -20,5 +20,15 @@
 // 4. UART Haberleşme Register Adresi
 `define UART_BASE_ADDR        32'h4000_0100
 `define UART_HIGH_ADDR        32'h4000_01FF
+// 5. Yapay Zeka (YZ) Hızlandırıcı Alanı
+`define YZ_BASE_ADDR        32'h2000_0000
+`define YZ_HIGH_ADDR        32'h2000_7FFF
 
+// 6. I2C Haberleşme Register Adresi
+`define I2C_BASE_ADDR       32'h4000_0200
+`define I2C_HIGH_ADDR       32'h4000_02FF
+
+// 7. Timer Register Adresi
+`define TIMER_BASE_ADDR     32'h4000_0300
+`define TIMER_HIGH_ADDR     32'h4000_03FF
 `endif // MEMORY_MAP_SVH

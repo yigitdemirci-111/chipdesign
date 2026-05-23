@@ -532,7 +532,7 @@ module cv32e40p_controller import cv32e40p_pkg::*;
 
                   halt_if_o         = 1'b1;
                   halt_id_o         = 1'b0;
-                  ctrl_fsm_ns       = id_ready_i ? FLUSH_EX : DECODE;
+ctrl_fsm_cs = ctrl_state_e'(4'b0001);
                   illegal_insn_n    = 1'b1;
 
                 end else begin

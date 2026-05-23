@@ -29,7 +29,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 module cv32e40p_core
-//  import cv32e40p_apu_core_pkg::*;
+  import cv32e40p_apu_core_pkg::*;
 #(
     parameter COREV_PULP =  0,  // PULP ISA Extension (incl. custom CSRs and hardware loop, excl. cv.elw)
     parameter COREV_CLUSTER = 0,  // PULP Cluster interface (incl. cv.elw)

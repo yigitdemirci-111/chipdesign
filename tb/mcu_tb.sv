@@ -3,49 +3,57 @@
 module mcu_tb;
     logic clk, rst_n;
     wire [7:0] gpio_io;
+    logic fetch_en; // reg yerine logic daha günceldir
+
+    logic debug_req, debug_gnt;
+    logic [31:0] debug_addr;
 
     // SoC Bağlantısı
     soc_top u_dut (
-        .clk_i     (clk),
-        .rst_ni    (rst_n),
-        .gpio_io   (gpio_io),
-        .uart_rx_i (1'b0),
-        .uart_tx_o ()
+        .clk_i            (clk),
+        .rst_ni           (rst_n),
+        .fetch_enable_i   (fetch_en),
+        .gpio_io          (gpio_io),
+        .uart_rx_i        (1'b0),
+        .uart_tx_o        (),
+        .debug_instr_req  (debug_req),
+        .debug_instr_gnt  (debug_gnt),
+        .debug_instr_addr (debug_addr)
     );
 
-    // Saat Üretici (100 MHz)
+    // Saat Üretici (100 MHz - 10ns periyot)
     initial begin
         clk = 0;
         forever #5 clk = ~clk;
     end
 
-    // Yükleme ve Reset Bloğu
-// Yükleme ve Reset Bloğu
-    initial begin
-        // RAM içeriğini dışarıdan yükle
-        $readmemh("test.hex", u_dut.u_ram_main.mem);
+    // İşlemci İç Durum İzleme (Hiyerarşik erişimi düzelttik)
+    always @(posedge clk) begin
+        if (u_dut.u_riscv_core.instr_req_o) begin
+            $display("Zaman: %0t | İŞLEMCİ KOD İSTİYOR! Adres: %h | GNT: %b", $time, u_dut.u_riscv_core.instr_addr_o, u_dut.u_riscv_core.instr_gnt_i);
+        end
+    end
 
+    // Reset ve Simülasyon Akışı
+    initial begin
         $dumpfile("soc_test.vcd");
         $dumpvars(0, mcu_tb);
 
+        // Başlangıç değerleri
         rst_n = 0;
-        #100;
-        @(negedge clk);
+        fetch_en = 0;
+        $display("Zaman: %0t | RESET AKTİF", $time);
+
+        #500; 
         rst_n = 1;
+        $display("Zaman: %0t | RESET PASİF", $time);
 
-        // BİRİNCİ DEĞİŞİKLİK: GPIO'daki her değişimi anlık olarak terminale yazdırır
-        $monitor("Zaman: %0t ps | GPIO Çıkışı: %b (Hex: %h)", $time, gpio_io, gpio_io);
+        #100;
+        fetch_en = 1;
+        $display("Zaman: %0t | FETCH ENABLE 1 YAPILDI", $time);
 
-        // İKİNCİ DEĞİŞİKLİK: Döngünün çalışması için süreyi 250'den 1000'e çıkarıyoruz
-        #1000; 
-
-        $display("==================================================");
-        $display("TEKNOFEST SoC ENTEGRASYON TEST RAPORU:");
-        $display("--------------------------------------------------");
-        $display("1) RAM Durumu  (data_axi_rdata) : %h", u_dut.data_axi_rdata);
-        $display("2) GPIO Çıkışı (gpio_io)     : %b (Hex: %h)", gpio_io, gpio_io);
-        $display("==================================================");
-
+        #100000;
+        $display("Zaman: %0t | Simülasyon sonu.", $time);
         $finish;
     end
 endmodule

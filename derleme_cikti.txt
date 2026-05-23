@@ -1,0 +1,65 @@
+Icarus Verilog Preprocessor version 12.0 (stable) ()
+
+Copyright (c) 1999-2021 Stephen Williams (steve@icarus.com)
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+Indexing library: ips/cv32e40p/rtl/
+Indexing library: ips/interconnect/rtl/
+Using language generation: IEEE1800-2012,no-specify,xtypes,icarus-misc
+PARSING INPUT
+LOCATING TOP-LEVEL MODULES
+   dummy_slave mcu_tb
+ ... done, 0 seconds.
+ELABORATING DESIGN
+soc_top.sv:88: error: Unknown module type: cv32e40p_core
+Loading library file ips/interconnect/rtl//axi_interconnect.v.
+Executing: /usr/lib/x86_64-linux-gnu/ivl/ivlpp  -L -F"/tmp/ivrlg27fbea59" -P"/tmp/ivrli7fbea59" "ips/interconnect/rtl//axi_interconnect.v"
+...parsing output from preprocessor...
+... Load module complete.
+Loading library file ips/interconnect/rtl//arbiter.v.
+Executing: /usr/lib/x86_64-linux-gnu/ivl/ivlpp  -L -F"/tmp/ivrlg27fbea59" -P"/tmp/ivrli7fbea59" "ips/interconnect/rtl//arbiter.v"
+...parsing output from preprocessor...
+... Load module complete.
+Loading library file ips/interconnect/rtl//priority_encoder.v.
+Executing: /usr/lib/x86_64-linux-gnu/ivl/ivlpp  -L -F"/tmp/ivrlg27fbea59" -P"/tmp/ivrli7fbea59" "ips/interconnect/rtl//priority_encoder.v"
+...parsing output from preprocessor...
+... Load module complete.
+Loading library file ips/interconnect/rtl//axi_ram.v.
+Executing: /usr/lib/x86_64-linux-gnu/ivl/ivlpp  -L -F"/tmp/ivrlg27fbea59" -P"/tmp/ivrli7fbea59" "ips/interconnect/rtl//axi_ram.v"
+...parsing output from preprocessor...
+... Load module complete.
+2 error(s) during elaboration.
+*** These modules were missing:
+        cv32e40p_core referenced 1 times.
+***
+Icarus Verilog version 12.0 (stable) ()
+
+Copyright (c) 2000-2021 Stephen Williams (steve@icarus.com)
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+translate: /usr/lib/x86_64-linux-gnu/ivl/ivlpp -v -L -F"/tmp/ivrlg27fbea59" -f"/tmp/ivrlg7fbea59" -p"/tmp/ivrli7fbea59" |/usr/lib/x86_64-linux-gnu/ivl/ivl -v -C"/tmp/ivrlh7fbea59" -C"/usr/lib/x86_64-linux-gnu/ivl/vvp.conf" -- -

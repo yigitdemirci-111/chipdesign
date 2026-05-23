@@ -1,0 +1,1 @@
+Kaldigimiz yer: CS_REGISTERS dosyasindaki syntax hatalari (satir 650+). Yarın buradaki karmaşık SV yapılarını basitleştireceğiz.

@@ -579,7 +579,7 @@ module cv32e40p_decoder
               fpu_src_fmt_o = fpu_dst_fmt_o;
 
               // decode vectorial FP instruction
-              unique case (instr_rdata_i[29:25]) inside
+case (instr_rdata_i[29:25])
                 // vfadd.vfmt - Vectorial FP Addition
                 5'b00001: begin
                   fpu_op      = cv32e40p_fpu_pkg::ADD;
@@ -665,7 +665,7 @@ module cv32e40p_decoder
                   regb_used_o          = 1'b0;
                   scalar_replication_o = 1'b0;
                   // Decode Operation in rs2
-                  unique case (instr_rdata_i[24:20]) inside
+case (instr_rdata_i[24:20])
                     // vfmv.{x.vfmt/vfmt.x} - Vectorial FP Reg <-> GP Reg Moves
                     5'b00000: begin
                       alu_op_b_mux_sel_o = OP_B_REGA_OR_FWD; // set rs2 = rs1 so we can map FMV to SGNJ in the unit
@@ -876,10 +876,9 @@ module cv32e40p_decoder
 
               // check rounding mode
               if (check_fprm) begin
-                unique case (frm_i) inside
-                  [3'b000:3'b100] : ; //legal rounding modes
-                  default         : illegal_insn_o = 1'b1;
-                endcase
+if (frm_i > 3'b100) begin
+                illegal_insn_o = 1'b1;
+              end
               end
 
               // Set latencies for FPnew from config. The C_LAT constants contain the number
@@ -1092,7 +1091,7 @@ module cv32e40p_decoder
               fp_op_group   = NONCOMP;
               check_fprm    = 1'b0; // instruction encoded in rm, do the check here
               if (C_XF16ALT) begin  // FP16ALT instructions encoded in rm separately (static)
-                if (!(instr_rdata_i[14:12] inside {[3'b000:3'b010], [3'b100:3'b110]})) begin
+if (instr_rdata_i[13:12] == 2'b11) begin
                   illegal_insn_o = 1'b1;
                 end
                 // FP16ALT uses special encoding here
@@ -1103,7 +1102,7 @@ module cv32e40p_decoder
                   fp_rnd_mode_o = {1'b0, instr_rdata_i[13:12]};
                 end
               end else begin
-                if (!(instr_rdata_i[14:12] inside {[3'b000:3'b010]})) illegal_insn_o = 1'b1;
+if (instr_rdata_i[14:12] > 3'b010) illegal_insn_o = 1'b1;
               end
             end
             // fmin/fmax.fmt - FP Minimum / Maximum
@@ -1112,7 +1111,7 @@ module cv32e40p_decoder
               fp_op_group   = NONCOMP;
               check_fprm    = 1'b0; // instruction encoded in rm, do the check here
               if (C_XF16ALT) begin  // FP16ALT instructions encoded in rm separately (static)
-                if (!(instr_rdata_i[14:12] inside {[3'b000:3'b001], [3'b100:3'b101]})) begin
+if (instr_rdata_i[13] == 1'b1) begin
                   illegal_insn_o = 1'b1;
                 end
                 // FP16ALT uses special encoding here
@@ -1123,7 +1122,7 @@ module cv32e40p_decoder
                   fp_rnd_mode_o = {1'b0, instr_rdata_i[13:12]};
                 end
               end else begin
-                if (!(instr_rdata_i[14:12] inside {[3'b000:3'b001]})) illegal_insn_o = 1'b1;
+if (instr_rdata_i[14:12] > 3'b001) illegal_insn_o = 1'b1;
               end
             end
             // fcvt.fmt.fmt - FP to FP Conversion
@@ -1189,7 +1188,7 @@ module cv32e40p_decoder
               reg_fp_d_o    = 1'b0; // go to integer regfile
               check_fprm    = 1'b0; // instruction encoded in rm, do the check here
               if (C_XF16ALT) begin  // FP16ALT instructions encoded in rm separately (static)
-                if (!(instr_rdata_i[14:12] inside {[3'b000:3'b010], [3'b100:3'b110]})) begin
+if (instr_rdata_i[13:12] == 2'b11) begin
                   illegal_insn_o = 1'b1;
                 end
                 // FP16ALT uses special encoding here
@@ -1200,7 +1199,7 @@ module cv32e40p_decoder
                   fp_rnd_mode_o = {1'b0, instr_rdata_i[13:12]};
                 end
               end else begin
-                if (!(instr_rdata_i[14:12] inside {[3'b000:3'b010]})) illegal_insn_o = 1'b1;
+if (instr_rdata_i[14:12] > 3'b010) illegal_insn_o = 1'b1;
               end
             end
             // fcvt.ifmt.fmt - FP to Int Conversion
@@ -1313,23 +1312,23 @@ module cv32e40p_decoder
           if ((~C_XF16ALT) && fpu_dst_fmt_o == cv32e40p_fpu_pkg::FP16ALT) begin
             illegal_insn_o = 1'b1;
           end
-          if ((~C_XF8) && fpu_dst_fmt_o == cv32e40p_fpu_pkg::FP8) illegal_insn_o = 1'b1;
+if ((~C_XF8) && fpu_dst_fmt_o == cv32e40p_fpu_pkg::FP8) illegal_insn_o = 1'b1;
 
           // check rounding mode
           if (check_fprm) begin
-            unique case (instr_rdata_i[14:12]) inside
+            case (instr_rdata_i[14:12])
               3'b000, 3'b001, 3'b010, 3'b011, 3'b100: ; //legal rounding modes
-              3'b101: begin      // Alternative Half-Precsision encded as fmt=10 and rm=101
+              3'b101: begin      // Alternative Half-Precision encoded as fmt=10 and rm=101
                 if (~C_XF16ALT || fpu_dst_fmt_o != cv32e40p_fpu_pkg::FP16ALT) illegal_insn_o = 1'b1;
                 // actual rounding mode from frm csr
-                unique case (frm_i) inside
+                case (frm_i) 
                   3'b000, 3'b001, 3'b010, 3'b011, 3'b100 : fp_rnd_mode_o = frm_i; //legal rounding modes
                   default                                : illegal_insn_o = 1'b1;
                 endcase
               end
               3'b111: begin
                 // rounding mode from frm csr
-                unique case (frm_i) inside
+                case (frm_i) 
                   3'b000, 3'b001, 3'b010, 3'b011, 3'b100 : fp_rnd_mode_o = frm_i; //legal rounding modes
                   default                                : illegal_insn_o = 1'b1;
                 endcase
@@ -1338,13 +1337,10 @@ module cv32e40p_decoder
             endcase
           end
 
-          // Set latencies for FPnew from config. The C_LAT constants contain the number
-          // of pipeline registers. the APU takes the following values:
-          // 1 = single cycle (no latency), 2 = one pipestage, 3 = two or more pipestages
+          // Set latencies for FPnew from config.
           case (fp_op_group)
-            // ADDMUL has format dependent latency
             ADDMUL : begin
-              unique case (fpu_dst_fmt_o)
+              case (fpu_dst_fmt_o)
                 cv32e40p_fpu_pkg::FP32    : apu_lat_o = (FPU_ADDMUL_LAT<2)? FPU_ADDMUL_LAT+1: 2'h3;
                 cv32e40p_fpu_pkg::FP64    : apu_lat_o = (C_LAT_FP64<2)    ? C_LAT_FP64+1    : 2'h3;
                 cv32e40p_fpu_pkg::FP16    : apu_lat_o = (C_LAT_FP16<2)    ? C_LAT_FP16+1    : 2'h3;
@@ -1353,15 +1349,14 @@ module cv32e40p_decoder
                 default : ;
               endcase
             end
-            // DIVSQRT is iterative and takes more than 2 cycles
             DIVSQRT : apu_lat_o = 2'h3;
-            // NONCOMP uses the same latency for all formats
             NONCOMP : apu_lat_o = (FPU_OTHERS_LAT<2) ? FPU_OTHERS_LAT+1 : 2'h3;
-            // CONV uses the same latency for all formats
             CONV    : apu_lat_o = (FPU_OTHERS_LAT<2) ? FPU_OTHERS_LAT+1 : 2'h3;
             default: ;
           endcase
 
+          // Set FPnew OP and OPMOD as the APU op
+          apu_op_o = {fpu_vec_op, fpu_op_mod, fpu_op};
           // Set FPnew OP and OPMOD as the APU op
           apu_op_o = {fpu_vec_op, fpu_op_mod, fpu_op};
 
@@ -1450,31 +1445,42 @@ module cv32e40p_decoder
           if ((~C_XF8) && fpu_dst_fmt_o == cv32e40p_fpu_pkg::FP8) illegal_insn_o = 1'b1;
 
           // check rounding mode
-          unique case (instr_rdata_i[14:12]) inside
+// check rounding mode
+          case (instr_rdata_i[14:12])
             3'b000, 3'b001, 3'b010, 3'b011, 3'b100: ; //legal rounding modes
             3'b101: begin      // Alternative Half-Precsision encded as fmt=10 and rm=101
               if (~C_XF16ALT || fpu_dst_fmt_o != cv32e40p_fpu_pkg::FP16ALT) illegal_insn_o = 1'b1;
               // actual rounding mode from frm csr
-              unique case (frm_i) inside
+              case (frm_i)
                 3'b000, 3'b001, 3'b010, 3'b011, 3'b100 : fp_rnd_mode_o = frm_i; //legal rounding modes
                 default         : illegal_insn_o = 1'b1;
               endcase
             end
+            default: illegal_insn_o = 1'b1;
+          endcase
+// check rounding mode
+          case (instr_rdata_i[14:12])
+            3'b000, 3'b001, 3'b010, 3'b011, 3'b100: ; //legal rounding modes
+            3'b101: begin      // Alternative Half-Precision encoded as fmt=10 and rm=101
+              if (~C_XF16ALT || fpu_dst_fmt_o != cv32e40p_fpu_pkg::FP16ALT) illegal_insn_o = 1'b1;
+              // actual rounding mode from frm csr
+              case (frm_i)
+                3'b000, 3'b001, 3'b010, 3'b011, 3'b100 : fp_rnd_mode_o = frm_i; //legal rounding modes
+                default                                : illegal_insn_o = 1'b1;
+              endcase
+            end
             3'b111: begin
               // rounding mode from frm csr
-              unique case (frm_i) inside
+              case (frm_i)
                 3'b000, 3'b001, 3'b010, 3'b011, 3'b100 : fp_rnd_mode_o = frm_i; //legal rounding modes
-                default         : illegal_insn_o = 1'b1;
+                default                                : illegal_insn_o = 1'b1;
               endcase
             end
             default : illegal_insn_o = 1'b1;
           endcase
 
-          // Set latencies for FPnew from config. The C_LAT constants contain the number
-          // of pipeline registers. the APU takes the following values:
-          // 1 = single cycle (no latency), 2 = one pipestage, 3 = two or more pipestages
-          // format dependent latency
-          unique case (fpu_dst_fmt_o)
+          // Set latencies for FPnew from config.
+          case (fpu_dst_fmt_o)
             cv32e40p_fpu_pkg::FP32    : apu_lat_o = (FPU_ADDMUL_LAT<2)? FPU_ADDMUL_LAT+1: 2'h3;
             cv32e40p_fpu_pkg::FP64    : apu_lat_o = (C_LAT_FP64<2)    ? C_LAT_FP64+1    : 2'h3;
             cv32e40p_fpu_pkg::FP16    : apu_lat_o = (C_LAT_FP16<2)    ? C_LAT_FP16+1    : 2'h3;
@@ -1485,7 +1491,6 @@ module cv32e40p_decoder
 
           // Set FPnew OP and OPMOD as the APU op
           apu_op_o = {fpu_vec_op, fpu_op_mod, fpu_op};
-
         // No FPU or (ZFINX == 0 && MSTATUS.FS == FS_OFF)
         end else begin
           illegal_insn_o = 1'b1;
