@@ -175,12 +175,16 @@ cv32e40p_core u_riscv_core (
         .s_axi_rlast(flat_m_rlast), .s_axi_rvalid(flat_m_rvalid), .s_axi_rready(flat_m_rready)
     );
 
+// ... (yukarıdaki kodlar) ...
+
     assign debug_instr_req  = instr_req;
     assign debug_instr_gnt  = instr_gnt;
     assign debug_instr_addr = instr_addr;
 
-
-initial begin
+    // initial bloğu mutlaka endmodule'den ÖNCE olmalıdır
+    initial begin
+        $readmemh("program.hex", u_ram_main.mem);
         $monitor("Zaman: %0t | Fetch_Enable: %b | Instr_Req: %b | Instr_Addr: %h", $time, fetch_enable_i, instr_req, instr_addr);
     end
+
 endmodule

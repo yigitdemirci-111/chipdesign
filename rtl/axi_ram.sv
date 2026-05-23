@@ -48,9 +48,17 @@ module axi_ram #(
 );
 
     // Bellek
-    logic [31:0] mem [0:1023];
+logic [31:0] mem [0:1023];
 
-    // Basit AXI4-Lite mantığı (Gelişmiş özellikleri görmezden geliyoruz)
+    // --- BU BLOK EKSİKTİ! ---
+    initial begin
+        $readmemh("program.hex", mem);
+        $display("RAM: program.hex dosyadan yuklendi.");
+    end
+    // ------------------------
+
+    // Basit AXI4-Lite mantığı
+
     assign s_axi_awready = 1'b1;
     assign s_axi_wready  = 1'b1;
     assign s_axi_arready = 1'b1;

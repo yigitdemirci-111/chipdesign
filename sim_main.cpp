@@ -1,32 +1,29 @@
-#include "Vsoc_top.h"
+#include <iostream>
 #include "verilated.h"
 #include "verilated_vcd_c.h"
-#include <iostream>
+#include "Vsoc_top.h"
 
 int main(int argc, char** argv) {
-    // Verilator komut satırı argümanlarını işle
     Verilated::commandArgs(argc, argv);
-    
-    // Tasarım örneğini oluştur
     Vsoc_top* top = new Vsoc_top;
 
-    // VCD izleme (waveform) ayarları
-    Verilated::traceEverOn(true);
+    // VCD (Röntgen) kurulumu - İşlemcinin içini görmemizi sağlar
+    Verilated::traceEverOn(true); 
     VerilatedVcdC* tfp = new VerilatedVcdC;
-    top->trace(tfp, 99);
+    top->trace(tfp, 99); // 99 derinlik ile her şeyi kaydet
     tfp->open("soc_test.vcd");
 
     vluint64_t main_time = 0;
-
+    
     // Başlangıç değerleri
     top->clk_i = 0;
     top->rst_ni = 0;
     top->fetch_enable_i = 0;
 
     // Simülasyon döngüsü
-// Simülasyon döngüsü
-    while (main_time < 2000 && !Verilated::gotFinish()) {
-        // 1. Clock üretimi
+    while (main_time < 200000 && !Verilated::gotFinish()) {
+        
+        // 1. Clock mantığı
         if ((main_time % 5) == 0) {
             top->clk_i = !top->clk_i;
         }
@@ -44,17 +41,15 @@ int main(int argc, char** argv) {
         top->eval();
         tfp->dump(main_time);
 
-        // 4. Debug çıktısı (sadece saat değişimlerinde)
-        if (main_time % 5 == 0) {
+        // 4. Debug çıktısı
+        if (main_time % 500 == 0) {
             std::cout << "Zaman: " << main_time << " | Clock: " << (int)top->clk_i 
                       << " | Reset: " << (int)top->rst_ni << std::endl;
         }
 
-        // 5. Zamanı tek bir kez artır!
         main_time++;
     }
 
-    // Döngü bittikten sonra temizlik
     tfp->close();
     delete top;
     

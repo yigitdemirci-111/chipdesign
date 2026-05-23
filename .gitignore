@@ -1,5 +1,6 @@
-*.vcd
-*.vvp
-soc_test
 obj_dir/
+*.vcd
+*.exe
+*.a
 *.o
+*.mk
