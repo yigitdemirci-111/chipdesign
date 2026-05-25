@@ -1,0 +1,1 @@
+iverilog -o i2c_unit_sim.vvp tb_i2c_unit.v ../rtl/verilog-i2c-master/rtl/special_i2c_wrapper.v ../rtl/verilog-i2c-master/rtl/i2c_master.v
