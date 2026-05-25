@@ -4,3 +4,8 @@ obj_dir/
 *.a
 *.o
 *.mk
+*.vvp
+*.vcd
+*.log
+./sim
+
