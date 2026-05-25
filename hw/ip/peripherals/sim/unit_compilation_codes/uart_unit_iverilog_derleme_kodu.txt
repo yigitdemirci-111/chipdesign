@@ -1,0 +1,1 @@
+iverilog -o uart_unit_sim.vvp tb_uart_unit.v ../rtl/axi-lite-utils-main/ip_cores/axi_lite_uart/rtl/axi_lite_uart.v
