@@ -33,9 +33,8 @@ module ai_accel_axi_slave #(
     input  logic        mac_busy_i,       // Yazmaç 0x4
 output logic [31:0] feature_addr_o,   // Yazmaç 0x8
     output logic [31:0] weight_addr_o,    // Yazmaç 0xC
-    input  logic [31:0] mac_result_i      // YENİ: MAC'ten gelen sonuç);
+    input  logic [31:0] mac_result_i      );
 
-    // --- YAZMAÇLAR (Registers) ---
     logic [31:0] slv_reg0; // CTRL: [0] = Start
     logic [31:0] slv_reg1; // STATUS: [0] = Busy
     logic [31:0] slv_reg2; // FEATURE_RAM_ADDR
@@ -81,14 +80,14 @@ output logic [31:0] feature_addr_o,   // Yazmaç 0x8
             S_AXI_RDATA  <= 0;
         end else if (S_AXI_ARVALID && !S_AXI_RVALID) begin
             S_AXI_RVALID <= 1'b1;
-            case (S_AXI_ARADDR)
-                4'h0: S_AXI_RDATA <= slv_reg0;
-                4'h4: S_AXI_RDATA <= {31'b0, mac_busy_i}; // Busy bilgisini oku
-                4'h8: S_AXI_RDATA <= slv_reg2;
-                4'hC: S_AXI_RDATA <= slv_reg3;
-                4'h10: S_AXI_RDATA <= mac_result_i; // YENİ: CPU 0x10 adresinden sonucu okuyacak
-                default: S_AXI_RDATA <= 32'hDEADBEEF;
-            endcase
+case (S_AXI_ARADDR)
+    32'h00000000: S_AXI_RDATA <= slv_reg0;
+    32'h00000004: S_AXI_RDATA <= {31'b0, mac_busy_i};
+    32'h00000008: S_AXI_RDATA <= slv_reg2;
+    32'h0000000C: S_AXI_RDATA <= slv_reg3;
+    32'h00000010: S_AXI_RDATA <= mac_result_i;
+    default:      S_AXI_RDATA <= 32'hDEADBEEF;
+endcase
         end else if (S_AXI_RREADY) begin
             S_AXI_RVALID <= 1'b0;
         end

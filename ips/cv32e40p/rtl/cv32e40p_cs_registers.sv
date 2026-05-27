@@ -1451,78 +1451,55 @@ module cv32e40p_cs_registers
   // ------------------------
   // HPM Registers
   //  Counter Registers: mhpcounter_q[]
-genvar cnt_gidx;
-generate
-  for (cnt_gidx = 0; cnt_gidx < 32; cnt_gidx++) begin : gen_mhpmcounter
-
-    if ((cnt_gidx == 1) || (cnt_gidx >= (NUM_MHPMCOUNTERS + 3))) begin : gen_non_implemented
-
-      always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n)
-          mhpmcounter_q[cnt_gidx] <= '0;
-        else
-          mhpmcounter_q[cnt_gidx] <= '0;
-      end
-
-    end else begin : gen_implemented
-
-      always_ff @(posedge clk or negedge rst_n)
-        if (!rst_n) begin
-          mhpmcounter_q[cnt_gidx] <= 'b0;
-        end else begin
-
-          if (PULP_PERF_COUNTERS && (cnt_gidx == 2 || cnt_gidx == 0)) begin
+  genvar cnt_gidx;
+  generate
+    for (cnt_gidx = 0; cnt_gidx < 32; cnt_gidx++) begin : gen_mhpmcounter
+      // mcyclce  is located at index 0
+      // there is no counter at index 1
+      // minstret is located at index 2
+      // Programable HPM counters start at index 3
+      if ((cnt_gidx == 1) || (cnt_gidx >= (NUM_MHPMCOUNTERS + 3))) begin : gen_non_implemented
+        assign mhpmcounter_q[cnt_gidx] = 'b0;
+      end else begin : gen_implemented
+        always_ff @(posedge clk, negedge rst_n)
+          if (!rst_n) begin
             mhpmcounter_q[cnt_gidx] <= 'b0;
-
           end else begin
-
-            if (mhpmcounter_write_lower[cnt_gidx]) begin
-              mhpmcounter_q[cnt_gidx][31:0] <= csr_wdata_int;
-
-            end else if (mhpmcounter_write_upper[cnt_gidx]) begin
-              mhpmcounter_q[cnt_gidx][63:32] <= csr_wdata_int;
-
-            end else if (mhpmcounter_write_increment[cnt_gidx]) begin
-              mhpmcounter_q[cnt_gidx] <= mhpmcounter_increment[cnt_gidx];
-
+            if (PULP_PERF_COUNTERS && (cnt_gidx == 2 || cnt_gidx == 0)) begin
+              mhpmcounter_q[cnt_gidx] <= 'b0;
+            end else begin
+              if (mhpmcounter_write_lower[cnt_gidx]) begin
+                mhpmcounter_q[cnt_gidx][31:0] <= csr_wdata_int;
+              end else if (mhpmcounter_write_upper[cnt_gidx]) begin
+                mhpmcounter_q[cnt_gidx][63:32] <= csr_wdata_int;
+              end else if (mhpmcounter_write_increment[cnt_gidx]) begin
+                mhpmcounter_q[cnt_gidx] <= mhpmcounter_increment[cnt_gidx];
+              end
             end
           end
-        end
+      end
     end
-  end
-endgenerate
+  endgenerate
+
   //  Event Register: mhpevent_q[]
-genvar evt_gidx;
-generate
-  for (evt_gidx = 0; evt_gidx < 32; evt_gidx++) begin : gen_mhpmevent
-
-    // programmable HPM events start at index 3
-    if ((evt_gidx < 3) || (evt_gidx >= (NUM_MHPMCOUNTERS + 3))) begin : gen_non_implemented
-
-      always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n)
-          mhpmevent_q[evt_gidx] <= '0;
-        else
-          mhpmevent_q[evt_gidx] <= '0;
+  genvar evt_gidx;
+  generate
+    for (evt_gidx = 0; evt_gidx < 32; evt_gidx++) begin : gen_mhpmevent
+      // programable HPM events start at index3
+      if ((evt_gidx < 3) || (evt_gidx >= (NUM_MHPMCOUNTERS + 3))) begin : gen_non_implemented
+        assign mhpmevent_q[evt_gidx] = 'b0;
+      end else begin : gen_implemented
+        if (NUM_HPM_EVENTS < 32) begin : gen_tie_off
+          assign mhpmevent_q[evt_gidx][31:NUM_HPM_EVENTS] = 'b0;
+        end
+        always_ff @(posedge clk, negedge rst_n)
+          if (!rst_n) mhpmevent_q[evt_gidx][NUM_HPM_EVENTS-1:0] <= 'b0;
+          else
+            mhpmevent_q[evt_gidx][NUM_HPM_EVENTS-1:0] <= mhpmevent_n[evt_gidx][NUM_HPM_EVENTS-1:0];
       end
-
-    end else begin : gen_implemented
-
-      if (NUM_HPM_EVENTS < 32) begin : gen_tie_off
-        assign mhpmevent_q[evt_gidx][31:NUM_HPM_EVENTS] = 'b0;
-      end
-
-      always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n)
-          mhpmevent_q[evt_gidx][NUM_HPM_EVENTS-1:0] <= 'b0;
-        else
-          mhpmevent_q[evt_gidx][NUM_HPM_EVENTS-1:0] <=
-              mhpmevent_n[evt_gidx][NUM_HPM_EVENTS-1:0];
-      end
-
     end
-  end
-endgenerate
+  endgenerate
+
   //  Enable Regsiter: mcounteren_q
   genvar en_gidx;
   generate
