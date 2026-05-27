@@ -1,3 +1,42 @@
+// --- Arayüz Tanımları (Verilator için eklendi) ---
+interface axil_if #(parameter ADDR_WIDTH=32, DATA_WIDTH=32);
+    logic [ADDR_WIDTH-1:0] awaddr;
+    logic awvalid;
+    logic awready;
+    logic [DATA_WIDTH-1:0] wdata;
+    logic [DATA_WIDTH/8-1:0] wstrb;
+    logic wvalid;
+    logic wready;
+    logic [1:0] bresp;
+    logic bvalid;
+    logic bready;
+    logic [ADDR_WIDTH-1:0] araddr;
+    logic arvalid;
+    logic arready;
+    logic [DATA_WIDTH-1:0] rdata;
+    logic [1:0] rresp;
+    logic rvalid;
+    logic rready;
+endinterface
+
+interface axi4_if #(parameter ADDR_WIDTH=32, DATA_WIDTH=32, ID_WIDTH=8);
+    logic [ID_WIDTH-1:0] awid;
+    logic [ADDR_WIDTH-1:0] awaddr;
+    logic awvalid;
+    logic awready;
+    logic [DATA_WIDTH-1:0] wdata;
+    logic wvalid;
+    logic wready;
+    logic bvalid;
+    logic bready;
+    logic [ADDR_WIDTH-1:0] araddr;
+    logic arvalid;
+    logic arready;
+    logic [DATA_WIDTH-1:0] rdata;
+    logic rvalid;
+    logic rready;
+endinterface
+
 // soc_top.sv
 `timescale 1ns / 1ps
 
@@ -7,7 +46,7 @@ module soc_top (
 );
 
     // ============================================================================
-    // 1. OBI Sinyal Tanımlamaları (İşlemci ile Köprü Arası)
+    // 1. OBI Sinyal Tanımlamaları
     // ============================================================================
     logic        obi_req;
     logic        obi_gnt;
@@ -27,41 +66,33 @@ module soc_top (
     // ============================================================================
     // 3. CV32E40P İşlemci Çekirdeği
     // ============================================================================
-// soc_top.sv içinde:
-cv32e40p_core #(
-    .COREV_PULP(0) // COREV_DM yerine COREV_PULP kullanılıyor
-) u_cv32e40p_core (
-    .clk_i(clk),           // clk yerine clk_i
-    .rst_ni(rst_ni),       // rst_n yerine rst_ni
-    
-    // Data OBI portları (OBI_ ön eki kaldırılmış)
-    .data_req_o(obi_req),
-    .data_gnt_i(obi_gnt),
-    .data_addr_o(obi_addr),
-    .data_we_o(obi_we),
-    .data_be_o(obi_be),
-    .data_wdata_o(obi_wdata),
-    .data_rvalid_i(obi_rvalid),
-    .data_rdata_i(obi_rdata),
+    cv32e40p_core #(
+        .COREV_PULP(0)
+    ) u_cv32e40p_core (
+        .clk_i(clk),
+        .rst_ni(rst_ni),
+        .data_req_o(obi_req),
+        .data_gnt_i(obi_gnt),
+        .data_addr_o(obi_addr),
+        .data_we_o(obi_we),
+        .data_be_o(obi_be),
+        .data_wdata_o(obi_wdata),
+        .data_rvalid_i(obi_rvalid),
+        .data_rdata_i(obi_rdata),
+        .instr_req_o(),
+        .instr_gnt_i(1'b1),
+        .instr_addr_o(),
+        .instr_rvalid_i(1'b0),
+        .instr_rdata_i(32'h0),
+        .core_sleep_o()
+    );
 
-    // Instruction OBI portları
-    .instr_req_o(),
-    .instr_gnt_i(1'b1),
-    .instr_addr_o(),
-    .instr_rvalid_i(1'b0),
-    .instr_rdata_i(32'h0),
-    
-    .core_sleep_o() // sleep_o yerine core_sleep_o
-    
-    // Diğer kullanılmayan pinleri şimdilik boş bırakabilirsin
-);
     // ============================================================================
     // 4. OBI-to-AXI4-Lite Köprüsü
     // ============================================================================
     obi_to_axil_bridge u_obi_bridge (
         .clk(clk),
         .rst_n(rst_ni),
-        
         .obi_req_i(obi_req),
         .obi_gnt_o(obi_gnt),
         .obi_addr_i(obi_addr),
@@ -70,7 +101,6 @@ cv32e40p_core #(
         .obi_wdata_i(obi_wdata),
         .obi_rvalid_o(obi_rvalid),
         .obi_rdata_o(obi_rdata),
-
         .axil_awaddr (periph_axil_s.awaddr),
         .axil_awvalid(periph_axil_s.awvalid),
         .axil_awready(periph_axil_s.awready),
