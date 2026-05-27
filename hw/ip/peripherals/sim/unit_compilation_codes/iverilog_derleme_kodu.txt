@@ -1,0 +1,24 @@
+iverilog -o soc_sim.vvp \
+tb_soc_top.v \
+../rtl/soc_top.v \
+../rtl/special_gpio.v \
+../rtl/special_timer.v \
+../rtl/axi-lite-utils-main/ip_cores/axi_lite_uart/rtl/axi_lite_uart.v \
+../rtl/verilog-i2c-master/rtl/special_i2c_wrapper.v \
+../rtl/verilog-i2c-master/rtl/i2c_master.v \
+../rtl/QSPI-Flash-Device-Controller-main/src/qspi_controller.v \
+../rtl/QSPI-Flash-Device-Controller-main/src/special_qspi_csr.v \
+../rtl/QSPI-Flash-Device-Controller-main/src/cmd_engine.v \
+../rtl/QSPI-Flash-Device-Controller-main/src/dma_engine.v \
+../rtl/QSPI-Flash-Device-Controller-main/src/fifo_rx.v \
+../rtl/QSPI-Flash-Device-Controller-main/src/fifo_tx.v \
+../rtl/QSPI-Flash-Device-Controller-main/src/qspi_fsm.v \
+../rtl/QSPI-Flash-Device-Controller-main/src/xip_engine.v \
+../rtl/verilog-axi-master/rtl/axil_crossbar.v \
+../rtl/verilog-axi-master/rtl/axil_crossbar_rd.v \
+../rtl/verilog-axi-master/rtl/axil_crossbar_wr.v \
+../rtl/verilog-axi-master/rtl/axil_crossbar_addr.v \
+../rtl/verilog-axi-master/rtl/axil_register_rd.v \
+../rtl/verilog-axi-master/rtl/axil_register_wr.v \
+../rtl/verilog-axi-master/rtl/arbiter.v \
+../rtl/verilog-axi-master/rtl/priority_encoder.v

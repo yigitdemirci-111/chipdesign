@@ -1,0 +1,1 @@
+iverilog -o gpio_timer_sim.vvp ../rtl/special_timer.v ../rtl/special_gpio.v tb_gpio_timer.v

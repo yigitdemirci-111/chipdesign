@@ -1,0 +1,24 @@
+# 1. Kök dizindeki kendi yazdığımız dosyalar (soc_top, special_timer, special_gpio vb.)
+read_verilog ./*.v
+
+# 2. UART ve Crossbar dosyaları (rtl/ kısmını sildik, doğrudan klasöre bakıyoruz)
+read_verilog ./axi-lite-utils-main/ip_cores/axi_lite_uart/rtl/*.v
+read_verilog ./verilog-axi-master/rtl/*.v
+
+# 3. QSPI motorları ve alt dosyaları (Alex'in reposunda src/ altındadır, bu genelde sabittir)
+read_verilog ./QSPI-Flash-Device-Controller-main/src/qspi_controller.v
+read_verilog ./QSPI-Flash-Device-Controller-main/src/special_qspi_csr.v
+read_verilog ./QSPI-Flash-Device-Controller-main/src/fifo_tx.v
+read_verilog ./QSPI-Flash-Device-Controller-main/src/fifo_rx.v
+read_verilog ./QSPI-Flash-Device-Controller-main/src/cmd_engine.v
+read_verilog ./QSPI-Flash-Device-Controller-main/src/dma_engine.v
+read_verilog ./QSPI-Flash-Device-Controller-main/src/xip_engine.v
+read_verilog ./QSPI-Flash-Device-Controller-main/src/qspi_fsm.v
+
+# 4. I2C dosyaları
+read_verilog ./verilog-i2c-master/rtl/*.v
+
+# 5. Hiyerarşi kontrolü ve Sentez
+hierarchy -check -top soc_top
+synth -top soc_top
+stat
